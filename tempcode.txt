@@ -1,0 +1,103 @@
+public class SudokuCube {
+
+  public int[][] cube;
+  public int dim;
+  public int dim_rt;
+
+  public SudokuCube(int n) {
+    dim = n;
+    dim_rt = (int)Math.sqrt(dim);
+    cube = new int[dim][dim];
+    create_sudoku();
+  }
+
+  // finds the top corner global index of the current grid
+  private int find_start_index(int ind) {
+    int k = 0;
+    while ((ind-k) % dim_rt != 0) {
+      k++;
+    }
+    return ind-k;
+  }
+
+  // checks if a number in within the smaller grid, or the row/col
+  private boolean invalid_num(int i, int j, int num) {
+    // return true if number in column
+    for (int c = 0; c < dim; c++) {
+      if (cube[i][c] == num) {
+        return true;
+      }
+    }
+    // return true if number in row
+    for (int r = 0; r < dim; r++) {
+      if (cube[r][j] == num) {
+        return true;
+      }
+    }
+
+    // get position at top-left of current grid in "global" coords
+    int row_start_global = find_start_index(i);
+    int col_start_global = find_start_index(j);
+    // return true if number in grid, local row/col is dim_rt long
+    for (int r = 0; r < dim_rt; r++) {
+      for (int c = 0; c < dim_rt; c++) {
+        if (cube[row_start_global+r][col_start_global+c] == num) {
+          return true;
+        }
+      }
+    }
+
+    // else return false
+    return false;
+  }
+
+  // return a good number for ij-index
+  // can't be duplicate in smaller grid, or in same ij-row/col
+  private int good_num(int i, int j) {
+    int num = (int)(Math.random() * (dim+1));
+
+    // we call blank spaces 0 for now, so we let them slide
+    while (invalid_num(i, j, num) && num != 0) {
+      num = (int)(Math.random() * (dim+1));
+    }
+    return num;
+  }
+
+  // create the puzzle, public because why not
+  public void create_sudoku() {
+    for (int i = 0; i < dim; i++) {
+      for (int j = 0; j < dim; j++) {
+        cube[i][j] = good_num(i, j);
+      }
+    }
+  }
+
+  // solve the puzzle
+  public void solve_sudoku() {
+    return;
+  }
+
+  // returns the 2D puzzle board in its current state
+  public String toString() {
+    String s = "-------------------------\n";
+    for (int i = 0; i < dim; i++) {
+      for (int j = 0; j < dim; j++) {
+        if (j % dim_rt == 0) {
+          s += "| ";
+        }
+        // print a black space if there's a 0
+        if (cube[j][i] == 0) {
+          s+= "  ";
+        }
+        else {
+          s += cube[j][i] + " ";
+        }
+      }
+      s += "|\n";
+      if ((i+1) % dim_rt == 0)
+         s += "-------------------------\n";
+    }
+    return s;
+  }
+
+}
